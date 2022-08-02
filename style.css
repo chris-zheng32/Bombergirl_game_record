@@ -1,0 +1,16 @@
+ul#nav_bar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+ul#nav_bar li {
+    display: inline;
+}
+
+ul#nav_bar li a {
+    background-color: #dddddd;
+    display: block;
+    padding: 8px;
+}

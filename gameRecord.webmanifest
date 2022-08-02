@@ -1,0 +1,10 @@
+{
+    "name": "遊戲紀錄",
+    "short_name": "Game Record",
+    "description": "紀錄遊戲結果",
+    "start_url": "./index.html",
+    "icons": [],
+    "display": "fullscreen",
+    "theme_color": "#dddddd",
+    "background_color": "#dddddd"
+}

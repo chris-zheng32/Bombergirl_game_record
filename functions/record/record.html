@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>遊戲紀錄 - 紀錄結果</title>
+    <link rel="stylesheet" href="../../style.css">
+    <script src="./record.js" defer></script>
+</head>
+<body>
+    <header>
+        <h1>遊戲紀錄 - 紀錄結果</h1>
+        <ul id="nav_bar">
+            <li><a href="../../index.html">回首頁</a></li>
+        </ul>
+    </header>
+    <main>
+        <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
+        <form id="record" target="dummyframe">
+            <br>
+            <br>
+            <label for="select_character">選擇角色</label>
+            <select name="選擇角色" id="select_character">
+                <optgroup label="Bomber">
+                    <option value="Bomber_1">小白</option>
+                    <option value="Bomber_2">小黑</option>
+                </optgroup>
+                <optgroup label="Attacker">
+
+                </optgroup>
+                <optgroup label="Shooter">
+
+                </optgroup>
+                <optgroup label="Blocker">
+
+                </optgroup>
+            </select>
+
+            <label for="select_map">選擇地圖</label>
+            <select name="選擇地圖" id="select_map">
+                <option value="Map_1">地圖1</option>
+            </select>
+
+            <input type="submit" value="送出">
+        </form>
+    </main>
+</body>
+</html>
