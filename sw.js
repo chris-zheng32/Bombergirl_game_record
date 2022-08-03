@@ -4,7 +4,6 @@ let appShellFiles = [
     './app.js',
     './index.html',
     './style.css',
-    './functions',
     './functions/record/record.html',
     './functions/record/record.js',
     './functions/statistic/statistic.html',
