@@ -1,4 +1,4 @@
 
 if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('sw.js')
+    navigator.serviceWorker.register('Bombergirl_game_record/sw.js')
 }
