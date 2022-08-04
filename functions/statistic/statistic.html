@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bombergirl遊戲紀錄 - 統計</title>
+    <link rel="stylesheet" href="../../style.css">
+
+    <!-- 僅作為本機測試使用 --> <script src="../../data/characters.js" defer></script> 
+    <!-- 僅作為本機測試使用 --> <script src="../../data/maps.js" defer></script> 
+    <!-- 僅作為本機測試使用 --> <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script> 
+    <script src="./statistic.js" defer></script>
+</head>
+<body>
+    <header>
+        <h1>Bombergirl遊戲紀錄 - 統計</h1>
+        <ul id="nav_bar">
+            <li><a href="../../index.html">回首頁</a></li>
+        </ul>
+    </header>
+    <main>
+        <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
+        <form id="record" target="dummyframe">
+            <br>
+            <br>
+            <label for="input_startdate">起始日期</label>
+            <input type="date" name="起始日期" id="input_startdate">
+            <br>
+            <label for="input_enddate">結束日期</label>
+            <input type="date" name="結束日期" id="input_enddate">
+
+            <br>
+            <br>
+            <label for="select_character">選擇角色</label>
+            <select name="選擇角色" id="select_character">
+                <option value=""></option>
+                
+            </select>
+
+            <br>
+            <br>
+            <label for="select_map">選擇地圖</label>
+            <select name="選擇地圖" id="select_map">
+                <option value=""></option>
+            </select>
+
+            <br>
+            <br>
+            <input type="submit" value="送出">
+        </form>
+
+        <br>
+        <br>
+        <br>
+        <div id="statistic">
+
+        </div>
+    </main>
+</body>
+</html>
