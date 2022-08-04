@@ -4,13 +4,17 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>遊戲紀錄 - 紀錄結果</title>
+    <title>Bombergirl遊戲紀錄 - 紀錄結果</title>
     <link rel="stylesheet" href="../../style.css">
+
+    <!-- 僅作為本機測試使用 --> <script src="../../data/characters.js" defer></script> 
+    <!-- 僅作為本機測試使用 --> <script src="../../data/maps.js" defer></script> 
+    <!-- 僅作為本機測試使用 --> <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script> 
     <script src="./record.js" defer></script>
 </head>
 <body>
     <header>
-        <h1>遊戲紀錄 - 紀錄結果</h1>
+        <h1>Bombergirl遊戲紀錄 - 紀錄結果</h1>
         <ul id="nav_bar">
             <li><a href="../../index.html">回首頁</a></li>
         </ul>
@@ -22,26 +26,30 @@
             <br>
             <label for="select_character">選擇角色</label>
             <select name="選擇角色" id="select_character">
-                <optgroup label="Bomber">
-                    <option value="Bomber_1">小白</option>
-                    <option value="Bomber_2">小黑</option>
-                </optgroup>
-                <optgroup label="Attacker">
-
-                </optgroup>
-                <optgroup label="Shooter">
-
-                </optgroup>
-                <optgroup label="Blocker">
-
-                </optgroup>
+                <option value=""></option>
+                
             </select>
 
+            <br>
+            <br>
             <label for="select_map">選擇地圖</label>
             <select name="選擇地圖" id="select_map">
-                <option value="Map_1">地圖1</option>
+                <option value=""></option>
             </select>
 
+            <br>
+            <br>
+            <label for="select_wl">選擇勝負</label>
+            <select name="選擇勝負" id="select_wl">
+                <option value=""></option>
+                <option value="win">勝利</option>
+                <option value="draw">平局</option>
+                <option value="lose">敗北</option>
+            </select>
+
+            <br>
+            <br>
+            <br>
             <input type="submit" value="送出">
         </form>
     </main>

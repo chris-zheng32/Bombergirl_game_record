@@ -12,7 +12,9 @@ var characters = {
     },
     "Blocker": {
 
-    }
+    },
+    "測試1": "Test1",
+    "測試2": "Test2"
 }
 /*
     一個思路：
@@ -39,4 +41,4 @@ var characters = {
     }
 */
 
-module.exports = characters
+// module.exports = characters
