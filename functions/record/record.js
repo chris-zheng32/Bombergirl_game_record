@@ -19,31 +19,31 @@ const selectOptionsGenerator = (fieldId) => {
     }
 
     let selectOptions = {}
-    Object.keys(internalData).forEach(typeOrName => {
-        if (typeof internalData[typeOrName] === "object") {
-            let type = typeOrName
+    Object.keys(internalData).forEach(typeOrId => {
+        if (typeof internalData[typeOrId] === "object") {
+            let type = typeOrId
             selectOptions[type] = []
-            Object.keys(internalData[type]).forEach(name => {
+            Object.keys(internalData[type]).forEach(id => {
                 selectOptions[type].push(
                     (function () {
                         let optionElement = document.createElement('option')
-                        optionElement.value = internalData[type][name]
-                        optionElement.text = name
+                        optionElement.value = id
+                        optionElement.text = internalData[type][id]
                         return optionElement
                     })()
                 )
             })
-        } else if (typeof internalData[typeOrName] === "string") {
+        } else if (typeof internalData[typeOrId] === "string") {
             let type = "no_type"
-            let name = typeOrName
+            let id = typeOrId
             if (!selectOptions[type]) {
                 selectOptions[type] = []
             }
             selectOptions[type].push(
                 (function () {
                     let optionElement = document.createElement('option')
-                    optionElement.value = internalData[name]
-                    optionElement.text = name
+                    optionElement.value = id
+                    optionElement.text = internalData[id]
                     return optionElement
                 })()
             )
