@@ -162,6 +162,9 @@ document.querySelector('#record').addEventListener('submit', async (e) => {
                     keyPath: "timestamp"
                 })
                 dbStore.createIndex('timestamp', 'timestamp')
+                dbStore.createIndex('character', 'character')
+                dbStore.createIndex('map', 'map')
+                dbStore.createIndex('result', 'result')
             }
         })
 

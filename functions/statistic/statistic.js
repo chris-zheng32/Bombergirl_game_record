@@ -115,18 +115,26 @@ document.querySelector('#record').addEventListener('submit', async (e) => {
                     userInputData.map = pair[1]
                     break;
                 case "起始日期":
-                    let startdate = pair[1] ? new Date(pair[1]) : new Date()
-                    startdate.setHours(0)
-                    startdate.setMinutes(0)
-                    startdate.setSeconds(0)
-                    userInputData.startdate = startdate
+                    if (pair[1]) {
+                        let startdate = pair[1] ? new Date(pair[1]) : new Date()
+                        startdate.setHours(0)
+                        startdate.setMinutes(0)
+                        startdate.setSeconds(0)
+                        userInputData.startdate = startdate
+                    } else {
+                        userInputData.startdate = ""
+                    }
                     break;
                 case "結束日期":
-                    let enddate = pair[1] ? new Date(pair[1]) : new Date()
-                    enddate.setHours(23)
-                    enddate.setMinutes(59)
-                    enddate.setSeconds(59)
-                    userInputData.enddate = enddate
+                    if (pair[1]) {
+                        let enddate = pair[1] ? new Date(pair[1]) : new Date()
+                        enddate.setHours(23)
+                        enddate.setMinutes(59)
+                        enddate.setSeconds(59)
+                        userInputData.enddate = enddate
+                    } else {
+                        userInputData.enddate = ""
+                    }
                     break;
                 default:
                     break;
@@ -136,8 +144,59 @@ document.querySelector('#record').addEventListener('submit', async (e) => {
         return userInputData
     }
 
-    const queryData = async function(userInputData) {
-        
+    const queryData = async function (userInputData) {
+        let db = new Dexie('GameRecord')
+        db.version(0.1).stores({
+            gameRecords: 'timestamp,character,map,result,timestamp'
+        })
+        db.open()
+        let tableCollection = db.gameRecords
+        let filtersCount = 0
+        Object.keys(userInputData).forEach(key => {
+            if (userInputData[key]) {
+                switch (key) {
+                    case 'character':
+                        if (!filtersCount) {
+                            tableCollection = tableCollection.where("character").equals(userInputData.character)
+                        } else {
+                            tableCollection = tableCollection.and((record) => record.character == userInputData.character)
+                        }
+                        filtersCount++
+                        break;
+                    case "map":
+                        if (!filtersCount) {
+                            tableCollection = tableCollection.where("character").equals(userInputData.character)
+                        } else {
+                            tableCollection = tableCollection.and((record) => record.map == userInputData.map)
+                        }
+                        filtersCount++
+                        break;
+                    case "startdate":
+                        let startdateTime = userInputData.startdate.getTime()
+                        if (!filtersCount) {
+                            tableCollection = tableCollection.where("timestamp").aboveOrEqual(startdateTime)
+                        } else {
+                            tableCollection = tableCollection.and((record) => record.timestamp >= startdateTime)
+                        }
+                        filtersCount++
+                        break;
+                    case "enddate":
+                        let enddateTime = userInputData.enddate.getTime()
+                        if (!filtersCount) {
+                            tableCollection = tableCollection.where("timestamp").belowOrEqual(enddateTime)
+                        } else {
+                            tableCollection = tableCollection.and((record) => record.timestamp <= enddateTime)
+                        }
+                        filtersCount++
+                        break;
+                    default:
+                        break;
+                }
+            }
+        })
+        tableCollection.each((record) => {
+            console.log(record)
+        })
     }
 
     /* ------------------------------ Main ------------------------------ */
@@ -145,7 +204,7 @@ document.querySelector('#record').addEventListener('submit', async (e) => {
     if (e.preventDefault) e.preventDefault()
 
     retrieveFormData()
-        .then()
+        .then(queryData)
         .catch((formDataError) => {
             console.error("Form Data Error", formDataError)
             return false
