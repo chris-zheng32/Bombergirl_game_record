@@ -62,9 +62,9 @@ let statisticHTML = {
                         </div>
                     </div>
                     <div class="column">
-                        <div class="ts-text is-label">${values.winRate || "-"}</div>
+                        <div class="ts-text is-label">勝率</div>
                         <div class="ts-statistic">
-                            <div class="value">50</div>
+                            <div class="value">${values.winRate*100 || "-"}</div>
                             <div class="unit">%</div>
                         </div>
                     </div>
