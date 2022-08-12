@@ -1,21 +1,138 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="gameRecord.webmanifest">
-    <link rel="stylesheet" href="style.css">
-    <title>Bombergirl遊戲紀錄</title>
-    <script src="app.js" defer></script>
-</head>
-<body>
-    <header>
-        <h1>Bombergirl遊戲紀錄</h1>
-        <ul id="nav_bar">
-            <li><a href="./functions/record/record.html">記錄</a></li>
-            <li><a href="./functions/statistic/statistic.html">統計</a></li>
-        </ul>
-    </header>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+        />
+        <link rel="manifest" href="gameRecord.webmanifest" />
+        <!-- <link rel="stylesheet" href="style.css" /> -->
+        <title>Bombergirl遊戲紀錄</title>
+
+        <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/tocas/4.0.4/tocas.min.css"
+        />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tocas/4.0.4/tocas.min.js"></script>
+
+        <script src="app.js" defer></script>
+        <script src="./data/characters.js" defer></script>
+        <script src="./data/maps.js" defer></script>
+        <script src="./functions/statistic/statistic.js" defer></script>
+    </head>
+    <body>
+        <header>
+            <h1>Bombergirl遊戲紀錄</h1>
+            
+            <!-- <ul id="nav_bar">
+                <li><a href="../../index.html">回首頁</a></li>
+            </ul> -->
+
+            <div class="ts-segment">
+                <div class="ts-app-navbar is-fluid">
+                    <a class="item is-active">
+                        <div class="label">統計</div>
+                    </a>
+                    <a href="./functions/record/record.html" class="item">
+                        <div class="label">記錄</div>
+                    </a>
+                </div>
+            </div>
+            <div class="ts-divider is-section"></div>
+        </header>
+        <main>
+            <!-- 避免重新導向用的iframe -->
+            <iframe
+                name="dummyframe"
+                id="dummyframe"
+                style="display: none"
+            ></iframe>
+
+            <!-- 過濾器 -->
+            <form id="record" target="dummyframe">
+                <fieldset class="ts-fieldset">
+                    <legend>過濾條件</legend>
+                    <div class="ts-wrap is-vertical">
+                        <div class="ts-grid is-2-columns">
+                            <div class="column">
+                                <div class="ts-text is-label">起始日期</div>
+                                <div class="ts-space is-small"></div>
+                                <div class="ts-input is-fluid">
+                                    <input
+                                        type="date"
+                                        name="起始日期"
+                                        id="input_startdate"
+                                    />
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="ts-text is-label">結束日期</div>
+                                <div class="ts-space is-small"></div>
+                                <div class="ts-input is-fluid">
+                                    <input
+                                        type="date"
+                                        name="結束日期"
+                                        id="input_enddate"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="ts-text is-label">選擇角色類型</div>
+                            <div class="ts-space is-small"></div>
+                            <div class="ts-select is-fluid">
+                                <select name="選擇角色類型" id="select_charactertype">
+                                    <option value=""></option>
+                                    <option value="Bomber">Bomber</option>
+                                    <option value="Attacker">Attacker</option>
+                                    <option value="Shooter">Shooter</option>
+                                    <option value="Blocker">Blocker</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="ts-text is-label">選擇角色</div>
+                            <div class="ts-space is-small"></div>
+                            <div class="ts-select is-fluid">
+                                <select name="選擇角色" id="select_character">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="ts-text is-label">選擇地圖</div>
+                            <div class="ts-space is-small"></div>
+                            <div class="ts-select is-fluid">
+                                <select name="選擇地圖" id="select_map">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="ts-input is-fluid">
+                            <button type="submit" class="ts-button is-fluid">
+                                送出
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+            <br />
+
+            <!-- 統計數據 -->
+            <div id="statistic">
+                
+            </div>
+        </main>
+    </body>
 </html>
