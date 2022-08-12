@@ -19,35 +19,19 @@ const selectOptionsGenerator = (fieldId) => {
     }
 
     let selectOptions = {}
-    Object.keys(internalData).forEach(typeOrId => {
-        if (typeof internalData[typeOrId] === "object") {
-            let type = typeOrId
+    Object.keys(internalData).forEach(id => {
+        let type = internalData[id].type || "no_type"
+        let name = internalData[id].name
+        if (!selectOptions[type])
             selectOptions[type] = []
-            Object.keys(internalData[type]).forEach(id => {
-                selectOptions[type].push(
-                    (function () {
-                        let optionElement = document.createElement('option')
-                        optionElement.value = id
-                        optionElement.text = internalData[type][id]
-                        return optionElement
-                    })()
-                )
-            })
-        } else if (typeof internalData[typeOrId] === "string") {
-            let type = "no_type"
-            let id = typeOrId
-            if (!selectOptions[type]) {
-                selectOptions[type] = []
-            }
-            selectOptions[type].push(
-                (function () {
-                    let optionElement = document.createElement('option')
-                    optionElement.value = id
-                    optionElement.text = internalData[id]
-                    return optionElement
-                })()
-            )
-        }
+        selectOptions[type].push(
+            (function () {
+                let optionElement = document.createElement('option')
+                optionElement.value = id
+                optionElement.text = name
+                return optionElement
+            })()
+        )
     })
     let selectField = document.querySelector(fieldId)
     if (selectField) {
@@ -102,21 +86,28 @@ document.querySelector('#record').addEventListener('submit', async (e) => {
         let formData = new FormData(document.querySelector("#record"))
         let userInputData = {
             timestamp: new Date().getTime(),
+            characterType: "",
             character: "",
+            mapType: "",
             map: "",
-            result: ""
+            result: "",
+            score: ""
         }
         for (let pair of formData.entries()) {
             switch (pair[0]) {
                 case "選擇角色":
                     userInputData.character = pair[1]
+                    userInputData.characterType = characters[pair[1]].type
                     break;
                 case "選擇地圖":
                     userInputData.map = pair[1]
+                    userInputData.mapType = maps[pair[1]].type
                     break;
                 case "選擇勝負":
                     userInputData.result = pair[1]
                     break;
+                case "分數":
+                    userInputData.score = pair[1]
                 default:
                     break;
             }
@@ -162,6 +153,10 @@ document.querySelector('#record').addEventListener('submit', async (e) => {
                     keyPath: "timestamp"
                 })
                 dbStore.createIndex('timestamp', 'timestamp')
+                dbStore.createIndex('character', 'character')
+                dbStore.createIndex('map', 'map')
+                dbStore.createIndex('result', 'result')
+                dbStore.createIndex('score', 'score')
             }
         })
 
