@@ -1,6 +1,8 @@
 // import characters from '../../data/characters';
 // import idb from 'https://cdn.jsdelivr.net/npm/idb@7/+esm';
 
+let db // Dexie Instance
+
 let statisticData = {
     "winAmount": "",
     "drawAmount": "",
@@ -64,7 +66,7 @@ let statisticHTML = {
                     <div class="column">
                         <div class="ts-text is-label">勝率</div>
                         <div class="ts-statistic">
-                            <div class="value">${values.winRate*100 || "-"}</div>
+                            <div class="value">${values.winRate * 100 || "-"}</div>
                             <div class="unit">%</div>
                         </div>
                     </div>
@@ -91,22 +93,27 @@ let statisticHTML = {
                         </tr>
                     </thead>
                     <tbody>
-                        ${(function(values){
-                            let tableBodyStr = ""
-                            values.recent10GameResult.results.forEach((oneGameResult) => {
-                                tableBodyStr += `
-                                <tr>
-                                    <td>${new Date(oneGameResult.gameDatetime).toLocaleString()}</td>
-                                    <td>${oneGameResult.characterType || "-"}</td>
-                                    <td>${oneGameResult.character || "-"}</td>
-                                    <td>${oneGameResult.map || "-"}</td>
-                                    <td>${oneGameResult.result || "-"}</td>
-                                    <td>${oneGameResult.score || "-"}</td>
-                                </tr>
-                                `
-                            })
-                            return tableBodyStr
-                        })(values)}
+            ${(function (values) {
+                let tableBodyStr = ""
+                for (let i = 0; i < 10; i++) {
+                    let oneGameResult = values.recent10GameResult.results[i]
+                    if (oneGameResult) {
+                        tableBodyStr += `
+                        <tr>
+                            <td>${new Date(oneGameResult.timestamp).toLocaleString()}</td>
+                            <td>${oneGameResult.characterType || "-"}</td>
+                            <td>${characters[oneGameResult.character].name || "-"}</td>
+                            <td>${maps[oneGameResult.map].name || "-"}</td>
+                            <td>${oneGameResult.result || "-"}</td>
+                            <td>${oneGameResult.score || "-"}</td>
+                        </tr>
+                        `
+                    } else {
+                        break
+                    }
+                }
+                return tableBodyStr
+            })(values)}
                     </tbody>
                     <tfoot>
                         <tr>
@@ -140,35 +147,19 @@ const selectOptionsGenerator = (fieldId) => {
     }
 
     let selectOptions = {}
-    Object.keys(internalData).forEach(typeOrId => {
-        if (typeof internalData[typeOrId] === "object") {
-            let type = typeOrId
+    Object.keys(internalData).forEach(id => {
+        let type = internalData[id].type || "no_type"
+        let name = internalData[id].name
+        if (!selectOptions[type])
             selectOptions[type] = []
-            Object.keys(internalData[type]).forEach(id => {
-                selectOptions[type].push(
-                    (function () {
-                        let optionElement = document.createElement('option')
-                        optionElement.value = id
-                        optionElement.text = internalData[type][id]
-                        return optionElement
-                    })()
-                )
-            })
-        } else if (typeof internalData[typeOrId] === "string") {
-            let type = "no_type"
-            let id = typeOrId
-            if (!selectOptions[type]) {
-                selectOptions[type] = []
-            }
-            selectOptions[type].push(
-                (function () {
-                    let optionElement = document.createElement('option')
-                    optionElement.value = id
-                    optionElement.text = internalData[id]
-                    return optionElement
-                })()
-            )
-        }
+        selectOptions[type].push(
+            (function () {
+                let optionElement = document.createElement('option')
+                optionElement.value = id
+                optionElement.text = name
+                return optionElement
+            })()
+        )
     })
     let selectField = document.querySelector(fieldId)
     if (selectField) {
@@ -190,16 +181,21 @@ const selectOptionsGenerator = (fieldId) => {
 }
 
 const queryData = async function (userInputData) {
-    let db = new Dexie('GameRecord')
-    db.version(0.1).stores({
-        gameRecords: 'timestamp,character,map,result,timestamp'
-    })
-    db.open()
     let tableCollection = db.gameRecords
     let filtersCount = 0
-    Object.keys(userInputData).forEach(key => {
+    let userInputData_Keys = Object.keys(userInputData)
+    // 下條件
+    userInputData_Keys.forEach(key => {
         if (userInputData[key]) {
             switch (key) {
+                case 'characterType':
+                    if (!filtersCount) {
+                        tableCollection = tableCollection.where('character').startsWith(userInputData.characterType)
+                    } else {
+                        tableCollection = tableCollection.and((record) => record.character.includes(userInputData.characterType))
+                    }
+                    filtersCount++
+                    break;
                 case 'character':
                     if (!filtersCount) {
                         tableCollection = tableCollection.where("character").equals(userInputData.character)
@@ -210,7 +206,7 @@ const queryData = async function (userInputData) {
                     break;
                 case "map":
                     if (!filtersCount) {
-                        tableCollection = tableCollection.where("character").equals(userInputData.character)
+                        tableCollection = tableCollection.where("map").equals(userInputData.map)
                     } else {
                         tableCollection = tableCollection.and((record) => record.map == userInputData.map)
                     }
@@ -239,9 +235,94 @@ const queryData = async function (userInputData) {
             }
         }
     })
-    tableCollection.each((record) => {
-        console.log(record)
+
+    // 排序 & 取得query結果
+    let queryResults
+    if (userInputData_Keys.length == 0) {
+        tableCollection = tableCollection.orderBy('timestamp')
+        tableCollection.reverse()
+        queryResults = await tableCollection.toArray()
+    } else {
+        tableCollection.reverse()
+        queryResults = await tableCollection.sortBy('timestamp')
+    }
+    console.log("queryResults", queryResults)
+
+    // 統整
+    let gameRecordsResults = {
+        "winAmount": 0,
+        "drawAmount": 0,
+        "loseAmount": 0,
+        "winRate": 0,
+        "avgScore": 0,
+        "recent10GameResult": {
+            "results": [],
+            "consolidateData": {
+                "winAmount": 0,
+                "drawAmount": 0,
+                "loseAmount": 0,
+                "winRate": 0,
+                "avgScore": 0
+            }
+        }
+    }
+    let queryCount = 1
+    let totalScore = 0, validScoreCount = 0
+    let recent10GameTotalScore = 0, recent10GameValidScoreCount = 0
+    queryResults.forEach(queryResult => {
+        Object.keys(queryResult).forEach(queryResultKey => {
+            switch (queryResultKey) {
+                case "result":
+                    if (queryResult.result == "win") {
+                        gameRecordsResults.winAmount++
+                        if (queryCount <= 10) {
+                            gameRecordsResults.recent10GameResult.consolidateData.winAmount++
+                        }
+                    } else if (queryResult.result == "lose") {
+                        gameRecordsResults.loseAmount++
+                        if (queryCount <= 10) {
+                            gameRecordsResults.recent10GameResult.consolidateData.loseAmount++
+                        }
+                    } else if (queryResult.result == "draw") {
+                        gameRecordsResults.drawAmount++
+                        if (queryCount <= 10) {
+                            gameRecordsResults.recent10GameResult.consolidateData.drawAmount++
+                        }
+                    }
+                    break;
+                case "score":
+                    if (queryResult.score) {
+                        totalScore += Number(queryResult.score)
+                        validScoreCount++
+                        if (queryCount <= 10) {
+                            recent10GameTotalScore += Number(queryResult.score)
+                            recent10GameValidScoreCount++
+                        }
+                    }
+                default:
+                    break;
+            }
+        })
+        if (queryCount <= 10) {
+
+            gameRecordsResults.recent10GameResult.results.push(queryResult)
+        }
+        queryCount++
     })
+    gameRecordsResults.winRate = Math.round((gameRecordsResults.winAmount / queryResults.length) * 100) / 100
+    gameRecordsResults.avgScore = Math.round(totalScore / validScoreCount)
+    gameRecordsResults.recent10GameResult.consolidateData.winRate = Math.round((gameRecordsResults.recent10GameResult.consolidateData.winAmount / gameRecordsResults.recent10GameResult.results.length) * 100) / 100
+    gameRecordsResults.recent10GameResult.consolidateData.avgScore = Math.round(recent10GameTotalScore / recent10GameValidScoreCount)
+    console.log("gameRecordsResults", gameRecordsResults)
+    return gameRecordsResults
+}
+
+const renderStatistic = async function (gameRecordsResults) {
+    let statisticDiv = document.querySelector("#statistic")
+    let statisticBlockNode = document.querySelector("#statisticBlock")
+    if (statisticBlockNode)
+        statisticDiv.removeChild(document.querySelector("#statisticBlock"))
+    statisticDiv.innerHTML = statisticHTML.allData(gameRecordsResults)
 }
 
 /**
@@ -259,46 +340,53 @@ const formDataValidators = {
     }
 }
 
-// 頁面載入時，為下拉式選單塞選項
-window.onload = () => {
+// 頁面載入時，為下拉式選單塞選項 & 取得並秀出過往遊戲紀錄
+window.onload = async () => {
     let form = document.querySelector('#record')
 
     selectOptionsGenerator('#select_character')
     selectOptionsGenerator('#select_map')
 
-    let statisticDiv = document.querySelector("#statistic")
-    statisticDiv.innerHTML = statisticHTML.allData({
-        "winAmount": 500,
-        "drawAmount": 10,
-        "loseAmount": 490,
-        "winRate": 0.5,
-        "avgScore": 2000,
-        "recent10GameResult": {
-            "results": [
-                {
-                    gameDatetime: 1660111743624,
-                    characterType: "Bomber",
-                    character: "測試Bomber_1",
-                    map: "地圖1-1",
-                    result: "勝",
-                    score: 2500
-                },
-                {
-                    gameDatetime: 1660111443624,
-                    characterType: "Shooter",
-                    character: "測試Shooter_1",
-                    map: "地圖2-1",
-                    result: "負",
-                    score: 1500
-                }
-            ],
-            "consolidateData": {
-                "winAmount": 1,
-                "winRate": 0.5,
-                "avgScore": 2000
-            }
-        }
+    db = new Dexie('GameRecord')
+    db.version(0.1).stores({
+        gameRecords: 'timestamp,character,map,result,timestamp'
     })
+    await db.open()
+    queryData({}).then(renderStatistic)
+
+    // let statisticDiv = document.querySelector("#statistic")
+    // statisticDiv.innerHTML = statisticHTML.allData({
+    //     "winAmount": 500,
+    //     "drawAmount": 10,
+    //     "loseAmount": 490,
+    //     "winRate": 0.5,
+    //     "avgScore": 2000,
+    //     "recent10GameResult": {
+    //         "results": [
+    //             {
+    //                 gameDatetime: 1660111743624,
+    //                 characterType: "Bomber",
+    //                 character: "Bomber_1",
+    //                 map: "地圖1-1",
+    //                 result: "勝",
+    //                 score: 2500
+    //             },
+    //             {
+    //                 gameDatetime: 1660111443624,
+    //                 characterType: "Shooter",
+    //                 character: "Shooter_1",
+    //                 map: "地圖2-1",
+    //                 result: "負",
+    //                 score: 1500
+    //             }
+    //         ],
+    //         "consolidateData": {
+    //             "winAmount": 1,
+    //             "winRate": 0.5,
+    //             "avgScore": 2000
+    //         }
+    //     }
+    // })
 }
 
 // 表單Submit後的Event Handler
@@ -311,18 +399,25 @@ document.querySelector('#record').addEventListener('submit', async (e) => {
     const retrieveFormData = async function () {
         let formData = new FormData(document.querySelector("#record"))
         let userInputData = {
-            character: "",
-            map: "",
-            startdate: "",
-            enddate: ""
+            // characterType: "",
+            // character: "",
+            // map: "",
+            // startdate: "",
+            // enddate: ""
         }
         for (let pair of formData.entries()) {
             switch (pair[0]) {
+                case "選擇角色類型":
+                    if(pair[1])
+                        userInputData.characterType = pair[1]
+                    break;
                 case "選擇角色":
-                    userInputData.character = pair[1]
+                    if(pair[1])
+                        userInputData.character = pair[1]
                     break;
                 case "選擇地圖":
-                    userInputData.map = pair[1]
+                    if(pair[1])
+                        userInputData.map = pair[1]
                     break;
                 case "起始日期":
                     if (pair[1]) {
@@ -331,8 +426,6 @@ document.querySelector('#record').addEventListener('submit', async (e) => {
                         startdate.setMinutes(0)
                         startdate.setSeconds(0)
                         userInputData.startdate = startdate
-                    } else {
-                        userInputData.startdate = ""
                     }
                     break;
                 case "結束日期":
@@ -342,8 +435,6 @@ document.querySelector('#record').addEventListener('submit', async (e) => {
                         enddate.setMinutes(59)
                         enddate.setSeconds(59)
                         userInputData.enddate = enddate
-                    } else {
-                        userInputData.enddate = ""
                     }
                     break;
                 default:
@@ -360,6 +451,7 @@ document.querySelector('#record').addEventListener('submit', async (e) => {
 
     retrieveFormData()
         .then(queryData)
+        .then(renderStatistic)
         .catch((formDataError) => {
             console.error("Form Data Error", formDataError)
             return false
