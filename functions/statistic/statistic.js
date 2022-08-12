@@ -39,7 +39,7 @@ let statisticHTML = {
             <div class="ts-wrap is-vertical">
                 <div
                     class="ts-grid is-3-columns"
-                    id="statisticOverview"
+                    id="statisticOverview1"
                 >
                     <!-- 概覽 -->
                     <div class="column">
@@ -56,6 +56,11 @@ let statisticHTML = {
                             <div class="unit">場</div>
                         </div>
                     </div>
+                </div>
+                <div
+                    class="ts-grid is-3-columns"
+                    id="statisticOverview2"
+                >
                     <div class="column">
                         <div class="ts-text is-label">敗場</div>
                         <div class="ts-statistic">
