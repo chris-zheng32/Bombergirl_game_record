@@ -3,107 +3,52 @@
 
 /**
  * 欄位選項生成器
+ * @param {string} fieldId 下拉式選單欄位ID(CSS Selector形式)
  */
-const selectOptionsGenerators = {
-    charactersOptions: () => {
-        let charactersSelectOptions = {}
-        Object.keys(characters).forEach(characterTypeOrName => {
-            if (typeof characters[characterTypeOrName] === "object") {
-                let characterType = characterTypeOrName
-                charactersSelectOptions[characterType] = []
-                Object.keys(characters[characterType]).forEach(characterName => {
-                    charactersSelectOptions[characterType].push(
-                        (function () {
-                            let optionElement = document.createElement('option')
-                            optionElement.value = characters[characterType][characterName]
-                            optionElement.text = characterName
-                            return optionElement
-                        })()
-                    )
+const selectOptionsGenerator = (fieldId) => {
+    let internalData = {}
+    switch (fieldId) {
+        case '#select_character':
+            internalData = characters
+            break;
+        case '#select_map':
+            internalData = maps
+            break;
+        default:
+            break;
+    }
+
+    let selectOptions = {}
+    Object.keys(internalData).forEach(id => {
+        let type = internalData[id].type || "no_type"
+        let name = internalData[id].name
+        if (!selectOptions[type])
+            selectOptions[type] = []
+        selectOptions[type].push(
+            (function () {
+                let optionElement = document.createElement('option')
+                optionElement.value = id
+                optionElement.text = name
+                return optionElement
+            })()
+        )
+    })
+    let selectField = document.querySelector(fieldId)
+    if (selectField) {
+        Object.keys(selectOptions).forEach(type => {
+            if (type != "no_type") {
+                let optionGroupEle = document.createElement('optgroup')
+                optionGroupEle.label = type
+                selectOptions[type].forEach(oneOptions => {
+                    optionGroupEle.appendChild(oneOptions)
                 })
-            } else if (typeof characters[characterTypeOrName] === "string") {
-                let characterType = "no_type"
-                let characterName = characterTypeOrName
-                if (!charactersSelectOptions[characterType]) {
-                    charactersSelectOptions[characterType] = []
-                }
-                charactersSelectOptions[characterType].push(
-                    (function () {
-                        let optionElement = document.createElement('option')
-                        optionElement.value = characters[characterName]
-                        optionElement.text = characterName
-                        return optionElement
-                    })()
-                )
+                selectField.appendChild(optionGroupEle)
+            } else {
+                selectOptions["no_type"].forEach(oneOptions => {
+                    selectField.appendChild(oneOptions)
+                })
             }
         })
-        let selectCharactersField = document.querySelector('#select_character')
-        if (selectCharactersField) {
-            Object.keys(charactersSelectOptions).forEach(characterType => {
-                if (characterType != "no_type") {
-                    let optionGroupEle = document.createElement('optgroup')
-                    optionGroupEle.label = characterType
-                    charactersSelectOptions[characterType].forEach(oneOptions => {
-                        optionGroupEle.appendChild(oneOptions)
-                    })
-                    selectCharactersField.appendChild(optionGroupEle)
-                } else {
-                    charactersSelectOptions["no_type"].forEach(oneOptions => {
-                        selectCharactersField.appendChild(oneOptions)
-                    })
-                }
-            })
-        }
-    },
-    mapsOptions: () => {
-        let mapsSelectOptions = {}
-        Object.keys(maps).forEach(mapsTypeOrName => {
-            if (typeof maps[mapsTypeOrName] === "object") {
-                let mapType = mapsTypeOrName
-                mapsSelectOptions[mapType] = []
-                Object.keys(maps[mapType]).forEach(mapName => {
-                    mapsSelectOptions[mapType].push(
-                        (function () {
-                            let optionElement = document.createElement('option')
-                            optionElement.value = maps[mapType][mapName]
-                            optionElement.text = mapName
-                            return optionElement
-                        })()
-                    )
-                })
-            } else if (typeof maps[mapsTypeOrName] === "string") {
-                let mapType = "no_type"
-                let mapName = mapsTypeOrName
-                if (!mapsSelectOptions[mapType]) {
-                    mapsSelectOptions[mapType] = []
-                }
-                mapsSelectOptions[mapType].push(
-                    (function () {
-                        let optionElement = document.createElement('option')
-                        optionElement.value = maps[mapName]
-                        optionElement.text = mapName
-                        return optionElement
-                    })()
-                )
-            }
-        })
-        let selectMapsField = document.querySelector('#select_map')
-        if (selectMapsField) {
-            Object.keys(mapsSelectOptions).forEach(mapType => {
-                if (mapType != "no_type") {
-                    let optionGroupEle = document.createElement('optgroup')
-                    optionGroupEle.label = mapType
-                    mapsSelectOptions[mapType].forEach(oneOptions => {
-                        optionGroupEle.appendChild(oneOptions)
-                    })
-                    selectMapsField.appendChild(optionGroupEle)
-                } else {
-                    mapsSelectOptions["no_type"].forEach(oneOptions => {
-                        selectMapsField.appendChild(oneOptions)
-                    })
-                }
-            })
-        }
     }
 }
 
@@ -126,8 +71,8 @@ const formDataValidators = {
 window.onload = () => {
     let form = document.querySelector('#record')
 
-    selectOptionsGenerators.charactersOptions()
-    selectOptionsGenerators.mapsOptions()
+    selectOptionsGenerator('#select_character')
+    selectOptionsGenerator('#select_map')
 }
 
 // 表單Submit後的Event Handler
@@ -141,21 +86,28 @@ document.querySelector('#record').addEventListener('submit', async (e) => {
         let formData = new FormData(document.querySelector("#record"))
         let userInputData = {
             timestamp: new Date().getTime(),
+            characterType: "",
             character: "",
+            mapType: "",
             map: "",
-            result: ""
+            result: "",
+            score: ""
         }
         for (let pair of formData.entries()) {
             switch (pair[0]) {
                 case "選擇角色":
                     userInputData.character = pair[1]
+                    userInputData.characterType = characters[pair[1]].type
                     break;
                 case "選擇地圖":
                     userInputData.map = pair[1]
+                    userInputData.mapType = maps[pair[1]].type
                     break;
                 case "選擇勝負":
                     userInputData.result = pair[1]
                     break;
+                case "分數":
+                    userInputData.score = pair[1]
                 default:
                     break;
             }
@@ -201,9 +153,13 @@ document.querySelector('#record').addEventListener('submit', async (e) => {
                     keyPath: "timestamp"
                 })
                 dbStore.createIndex('timestamp', 'timestamp')
+                dbStore.createIndex('character', 'character')
+                dbStore.createIndex('map', 'map')
+                dbStore.createIndex('result', 'result')
+                dbStore.createIndex('score', 'score')
             }
         })
-        
+
         console.log("add data to db...")
         let dataKey = await dbPromise.add('gameRecords', userInputData)
         console.log("dataKey", dataKey)

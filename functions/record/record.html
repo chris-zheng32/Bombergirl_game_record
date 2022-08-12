@@ -1,57 +1,103 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bombergirl遊戲紀錄 - 紀錄結果</title>
-    <link rel="stylesheet" href="../../style.css">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Bombergirl遊戲紀錄</title>
+        <!-- <link rel="stylesheet" href="../../style.css"> -->
 
-    <!-- 僅作為本機測試使用 --> <script src="../../data/characters.js" defer></script> 
-    <!-- 僅作為本機測試使用 --> <script src="../../data/maps.js" defer></script> 
-    <!-- 僅作為本機測試使用 --> <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script> 
-    <script src="./record.js" defer></script>
-</head>
-<body>
-    <header>
-        <h1>Bombergirl遊戲紀錄 - 紀錄結果</h1>
-        <ul id="nav_bar">
-            <li><a href="../../index.html">回首頁</a></li>
-        </ul>
-    </header>
-    <main>
-        <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
-        <form id="record" target="dummyframe">
-            <br>
-            <br>
-            <label for="select_character">選擇角色</label>
-            <select name="選擇角色" id="select_character">
-                <option value=""></option>
-                
-            </select>
+        <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script>
 
-            <br>
-            <br>
-            <label for="select_map">選擇地圖</label>
-            <select name="選擇地圖" id="select_map">
-                <option value=""></option>
-            </select>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/tocas/4.0.4/tocas.min.css"
+        />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tocas/4.0.4/tocas.min.js"></script>
 
-            <br>
-            <br>
-            <label for="select_wl">選擇勝負</label>
-            <select name="選擇勝負" id="select_wl">
-                <option value=""></option>
-                <option value="win">勝利</option>
-                <option value="draw">平局</option>
-                <option value="lose">敗北</option>
-            </select>
+        <script src="../../data/characters.js" defer></script>
+        <script src="../../data/maps.js" defer></script>
+        <script src="./record.js" defer></script>
+    </head>
+    <body>
+        <header>
+            <h1>Bombergirl遊戲紀錄</h1>
+            <div class="ts-segment" style="background: var(--ts-gray-300);">
+                <div class="ts-app-navbar is-fluid">
+                    <a href="../../index.html" class="item">
+                        <div class="label">統計</div>
+                    </a>
+                    <a class="item is-active">
+                        <div class="label">記錄</div>
+                    </a>
+                </div>
+            </div>
+            <div class="ts-divider is-section"></div>
+        </header>
+        <main>
+            <!-- 避免重新導向用的iframe -->
+            <iframe
+                name="dummyframe"
+                id="dummyframe"
+                style="display: none"
+            ></iframe>
 
-            <br>
-            <br>
-            <br>
-            <input type="submit" value="送出">
-        </form>
-    </main>
-</body>
+            <!-- 輸入表單 -->
+            <form id="record" target="dummyframe">
+                <fieldset class="ts-fieldset">
+                    <legend>輸入遊戲紀錄</legend>
+                    <div class="ts-wrap is-vertical">
+                        <div class="column">
+                            <div class="ts-text is-label">選擇角色</div>
+                            <div class="ts-space is-small"></div>
+                            <div class="ts-select is-fluid">
+                                <select name="選擇角色" id="select_character">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="ts-text is-label">選擇地圖</div>
+                            <div class="ts-space is-small"></div>
+                            <div class="ts-select is-fluid">
+                                <select name="選擇地圖" id="select_map">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="ts-text is-label">選擇勝負</div>
+                            <div class="ts-space is-small"></div>
+                            <div class="ts-select is-fluid">
+                                <select name="選擇勝負" id="select_wl">
+                                    <option value=""></option>
+                                    <option value="win">勝利</option>
+                                    <option value="draw">平局</option>
+                                    <option value="lose">敗北</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="ts-text is-label">分數</div>
+                            <div class="ts-input is-fluid">
+                                <input type="number" name="分數" id="input_score" />
+                            </div>
+                        </div>
+                        <div class="ts-input is-fluid">
+                            <button type="submit" class="ts-button is-fluid">
+                                送出
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </main>
+    </body>
 </html>

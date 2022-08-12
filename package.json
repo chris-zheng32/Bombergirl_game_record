@@ -1,0 +1,11 @@
+{
+    "name": "Bombergirl-game-record",
+    "version": "0.0.1",
+    "description": "Bombergirl遊戲紀錄",
+    "main": "app.js",
+    "scripts": {
+        "start": "open http://localhost:8080 && node server.js"
+    },
+    "author": "ChrisZ",
+    "license": "ISC"
+}
