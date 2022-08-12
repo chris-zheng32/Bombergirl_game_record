@@ -56,11 +56,6 @@ let statisticHTML = {
                             <div class="unit">場</div>
                         </div>
                     </div>
-                </div>
-                <div
-                    class="ts-grid is-3-columns"
-                    id="statisticOverview2"
-                >
                     <div class="column">
                         <div class="ts-text is-label">敗場</div>
                         <div class="ts-statistic">
@@ -68,6 +63,11 @@ let statisticHTML = {
                             <div class="unit">場</div>
                         </div>
                     </div>
+                </div>
+                <div
+                    class="ts-grid is-3-columns"
+                    id="statisticOverview2"
+                >
                     <div class="column">
                         <div class="ts-text is-label">勝率</div>
                         <div class="ts-statistic">
