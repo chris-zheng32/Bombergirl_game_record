@@ -3,7 +3,12 @@
     "short_name": "Game Record",
     "description": "紀錄遊戲結果",
     "start_url": "./index.html",
-    "icons": [],
+    "icons": [
+        {
+            "src": "./data/icons/bomb.png",
+            "sizes": "32x32 64x64 128x128 256x256"
+        }
+    ],
     "display": "fullscreen",
     "theme_color": "#dddddd",
     "background_color": "#dddddd"
