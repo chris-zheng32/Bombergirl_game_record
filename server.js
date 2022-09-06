@@ -2,7 +2,7 @@ const http = require('http')
 const fs = require('fs')
 
 let resourceList = {
-    
+
 }
 
 let html
@@ -77,6 +77,12 @@ fs.readFile('./functions/statistic/statistic.js', function (err, data) {
     }
     resourceList.function_statistic_statisticJs = data
 })
+fs.readFile('./data/icons/bomb.png', function (err, data) {
+    if (err) {
+        throw err
+    }
+    resourceList.icon_bomb = data
+})
 
 
 http.createServer((req, res) => {
@@ -94,56 +100,61 @@ http.createServer((req, res) => {
         res.end()
         return
     }
-    if(req.url.indexOf('sw.js') != -1) {
+    if (req.url.indexOf('sw.js') != -1) {
         res.writeHead(200, { 'Content-Type': 'text/javascript' })
         res.write(resourceList.swJs)
         res.end()
         return
     }
-    if(req.url.indexOf('gameRecord.webmanifest') != -1) {
+    if (req.url.indexOf('gameRecord.webmanifest') != -1) {
         res.writeHead(200, { 'Content-Type': 'text/manifest+json' })
         res.write(resourceList.manifest)
         res.end()
         return
     }
-    if(req.url.indexOf('/data/characters.js') != -1) {
+    if (req.url.indexOf('/data/characters.js') != -1) {
         res.writeHead(200, { 'Content-Type': 'text/javascript' })
         res.write(resourceList.data_charactersJs)
         res.end()
         return
     }
-    if(req.url.indexOf('/data/maps.js') != -1) {
+    if (req.url.indexOf('/data/maps.js') != -1) {
         res.writeHead(200, { 'Content-Type': 'text/javascript' })
         res.write(resourceList.data_mapsJs)
         res.end()
         return
     }
-    if(req.url.indexOf('/functions/record/record.html') != -1) {
+    if (req.url.indexOf('/functions/record/record.html') != -1) {
         res.writeHead(200, { 'Content-Type': 'text/html' })
         res.write(resourceList.function_record_recordHtml)
         res.end()
         return
     }
-    if(req.url.indexOf('/functions/record/record.js') != -1) {
+    if (req.url.indexOf('/functions/record/record.js') != -1) {
         res.writeHead(200, { 'Content-Type': 'text/javascript' })
         res.write(resourceList.function_record_recordJs)
         res.end()
         return
     }
-    if(req.url.indexOf('/functions/statistic/statistic.html') != -1) {
+    if (req.url.indexOf('/functions/statistic/statistic.html') != -1) {
         res.writeHead(200, { 'Content-Type': 'text/html' })
         res.write(resourceList.function_statistic_statisticHtml)
         res.end()
         return
     }
-    if(req.url.indexOf('/functions/statistic/statistic.js') != -1) {
+    if (req.url.indexOf('/functions/statistic/statistic.js') != -1) {
         res.writeHead(200, { 'Content-Type': 'text/javascript' })
         res.write(resourceList.function_statistic_statisticJs)
         res.end()
         return
     }
+    if (req.url.indexOf('/data/icons/bomb.png') != -1) {
+        res.writeHead(200, { 'Content-Type': 'image/png' })
+        res.write(resourceList.icon_bomb)
+        res.end()
+        return
+    }
 
-    
     res.writeHeader(200, { "Content-Type": "text/html" })
     res.write(resourceList.html)
     res.end()
